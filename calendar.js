@@ -13,9 +13,6 @@ const monthes = [
     'Декабрь'
 ];
 
-
-
-
 function createCalendar() {
     const currentDay = new Date(),
         currentYear = currentDay.getFullYear(),
@@ -24,21 +21,59 @@ function createCalendar() {
             month: currentMonth,
             year: currentYear
 
-        };
+        },
+        prevMonthBtn = document.querySelector('.calendar__change-month--prev'),
+        nextMonthBtn = document.querySelector('.calendar__change-month--next'),
+        currentMonthBtn = document.querySelector('.calendar__change-month--current');
+
+    function shiftMonth(shift) {
+        const { month, year } = calendarState,
+            thisMonthDay = new Date(year, month);
+
+        thisMonthDay.setMonth(month + shift);
+
+        calendarState.month = thisMonthDay.getMonth();
+        calendarState.year = thisMonthDay.getFullYear();
+
+        renderCalendar(calendarState.month, calendarState.year);
+    }
+
+    function nextMonth() {
+        shiftMonth(1);
+    }
+    function prevMonth() {
+        shiftMonth(-1);
+    }
+
+    prevMonthBtn.addEventListener('click', prevMonth);
+    nextMonthBtn.addEventListener('click', nextMonth);
+    currentMonthBtn.addEventListener('click', function () {
+        const currentDay = new Date(),
+            currentYear = currentDay.getFullYear(),
+            currentMonth = currentDay.getMonth();
+
+        calendarState.month = currentMonth;
+        calendarState.year = currentYear;
+
+        renderCalendar(calendarState.month, calendarState.year);
+
+    });
+
+    renderCalendar(calendarState.month, calendarState.year);
 
 }
 
-function createCalendar() {
+function renderCalendar(displayMonth, displayYear) {
     const currentDay = new Date(),
         currentYear = currentDay.getFullYear(),
         currentMonth = currentDay.getMonth(),
         currentDate = currentDay.getDate(),
-        firstDayOfMonth = new Date(currentYear, currentMonth, 1),
-        lastDayOfMonth = new Date(currentYear, currentMonth + 1, 0),
+        firstDayOfMonth = new Date(displayYear, displayMonth, 1),
+        lastDayOfMonth = new Date(displayYear, displayMonth + 1, 0),
         firstDayShift = (firstDayOfMonth.getDay() + 6) % 7,
-        firstDisplayDay = new Date(currentYear, currentMonth, 1 - firstDayShift),
+        firstDisplayDay = new Date(displayYear, displayMonth, 1 - firstDayShift),
         lastDayShift = (7 - lastDayOfMonth.getDay()) % 7,
-        lastDisplayDay = new Date(currentYear, currentMonth + 1, lastDayShift),
+        lastDisplayDay = new Date(displayYear, displayMonth + 1, lastDayShift),
         daysForDisplay = [],
         daysContainer = document.querySelector('.calendar__days'),
         headerContainer = document.querySelector('.calendar__header');
@@ -50,16 +85,14 @@ function createCalendar() {
         daysForDisplay.push(
             renderDay({
                 day: cDay,
-                notInMonth: cMonth !== currentMonth,
-                isCurrentDay: currentMonth === cMonth && currentDate === cDay.getDate()
+                notInMonth: cMonth !== displayMonth,
+                isCurrentDay: currentMonth === cMonth && currentDate === cDay.getDate() && cDay.getFullYear() === currentYear
             })
         );
     }
-    headerContainer.innerText = `${monthes[currentMonth]} ${currentYear}`
+    headerContainer.innerText = `${monthes[displayMonth]} ${displayYear}`
+    daysContainer.innerText = '';
     daysContainer.append(...daysForDisplay);
-
-    console.log(daysForDisplay);
-
 }
 
 function renderDay(dayObj) {
@@ -81,6 +114,5 @@ function renderDay(dayObj) {
     return dayContainer;
 
 }
-
 
 createCalendar();
